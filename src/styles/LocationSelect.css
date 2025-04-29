@@ -1,0 +1,22 @@
+.location-select-container {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  
+  .location-search {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 5px;
+  }
+  
+  .location-select {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+  
+  .location-select option {
+    padding: 4px;
+  }
