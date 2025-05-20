@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import localidades from '../data/localidades.json'
-import users from '../data/users.json'
 import '../styles/Register.css'
 
 function Register() {

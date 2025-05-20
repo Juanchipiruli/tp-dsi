@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import '../styles/Login.css';
-import users from '../data/users.json';
+import { loginUser } from '../services/authService';
 
 const Login = () => {
   const [legajo, setLegajo] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleLegajoChange = (e) => {
     const value = e.target.value;
@@ -30,17 +31,25 @@ const Login = () => {
       return;
     }
 
-    // Verificar las credenciales contra users.json
-    const user = users.users.find(
-      u => u.legajo === legajo && u.password === password
-    );
+    setLoading(true);
+    setError('');
 
-    if (user) {
-      setError('');
-      alert('Inicio de sesión exitoso');
-      // Aquí podrías redirigir al usuario a su dashboard o página principal
-    } else {
-      setError('Legajo o contraseña incorrectos');
+    try {
+      const result = await loginUser(legajo, password);
+      
+      if (result.success) {
+        // Guardar información del usuario en localStorage o sessionStorage
+        sessionStorage.setItem('currentUser', JSON.stringify(result.user));
+        alert('Inicio de sesión exitoso');
+        // Aquí podrías redirigir al usuario a su dashboard o página principal
+      } else {
+        setError(result.message);
+      }
+    } catch (error) {
+      setError('Error de conexión con el servidor');
+      console.error(error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -62,6 +71,7 @@ const Login = () => {
             onChange={handleLegajoChange}
             placeholder="Ingrese su número de legajo"
             required
+            disabled={loading}
           />
         </div>
         <div className="form-group">
@@ -75,16 +85,17 @@ const Login = () => {
             placeholder="Ingrese su contraseña"
             minLength={6}
             required
+            disabled={loading}
           />
         </div>
         {error && <div className="error-message">{error}</div>}
-        <button type="submit" className="login-button">
-          Iniciar Sesión
+        <button type="submit" className="login-button" disabled={loading}>
+          {loading ? 'Procesando...' : 'Iniciar Sesión'}
         </button>
       </form>
       <div className="register-section">
         <p>¿No estás registrado?</p>
-        <button onClick={redirectToRegister} className="register-button">
+        <button onClick={redirectToRegister} className="register-button" disabled={loading}>
           Registrarse con SAU
         </button>
       </div>
