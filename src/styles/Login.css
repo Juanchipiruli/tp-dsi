@@ -177,4 +177,32 @@
     padding: 0.5rem 1rem;
     font-size: 1rem;
   }
+
+.login-type-toggle {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2rem;
+  gap: 1rem;
+}
+
+.toggle-button {
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background-color: var(--input-bg);
+  color: var(--text-color);
+  border: 2px solid var(--input-border);
+}
+
+.toggle-button.active {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.toggle-button:hover {
+  transform: translateY(-2px);
+}
 }
