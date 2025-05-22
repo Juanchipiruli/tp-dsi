@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import localidades from '../data/localidades.json'
 import '../styles/Register.css'
+import { useNavigate } from 'react-router-dom';
 
 function Register() {
   const [formData, setFormData] = useState({
@@ -10,9 +11,10 @@ function Register() {
     carrera: '',
     localidad: '',
     password: ''
-  })
-  const [searchLocalidad, setSearchLocalidad] = useState('')
-  const [error, setError] = useState('')
+  });
+  const [searchLocalidad, setSearchLocalidad] = useState('');
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   const filteredLocalidades = localidades.localidades.filter(loc =>
     loc.toLowerCase().includes(searchLocalidad.toLowerCase())
@@ -50,7 +52,7 @@ function Register() {
   }
 
   const handleGoBack = () => {
-    window.location.href = '/';
+    navigate('/');
   };
 
   return (
