@@ -1,12 +1,10 @@
 import React, { useState } from 'react';
 import '../styles/Login.css';
-import { loginUser, loginAdmin } from '../services/authService';
+import { loginUser } from '../services/authService';
 import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
-  const [loginType, setLoginType] = useState('user'); // 'user' o 'admin'
   const [legajo, setLegajo] = useState('');
-  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -18,10 +16,6 @@ const Login = () => {
     if (/^\d*$/.test(value)) {
       setLegajo(value);
     }
-  };
-
-  const handleUsernameChange = (e) => {
-    setUsername(e.target.value);
   };
 
   const handlePasswordChange = (e) => {
@@ -45,15 +39,17 @@ const Login = () => {
     setError('');
 
     try {
-      let result;
-      
-      result = await loginUser(legajo, password);
+      const result = await loginUser(legajo, password);
       
       if (result.success) {
         // Guardar información del usuario en sessionStorage
         sessionStorage.setItem('currentUser', JSON.stringify(result.user));
+        sessionStorage.setItem('isAdmin', result.isAdmin);
+        
+        alert('Inicio de sesión exitoso');
+        // Aquí podrías redirigir al usuario a su dashboard o página principal
       } else {
-        setError(result.message);
+        setError(result.message || 'Credenciales inválidas');
       }
     } catch (error) {
       setError('Error de conexión con el servidor');
@@ -67,14 +63,9 @@ const Login = () => {
     navigate('/register');
   };
 
-  
-
   return (
     <div className="login-container">
       <h2>Inicio de Sesión - Sistema de Pasantías</h2>
-      <div className="login-type-toggle">
-        
-      </div>
       <form onSubmit={handleSubmit} className="login-form">
       <div className="form-group">
             <label htmlFor="legajo">Legajo:</label>

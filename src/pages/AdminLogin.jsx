@@ -45,7 +45,7 @@ const AdminLogin = () => {
         alert('Inicio de sesión exitoso');
         // Aquí podrías redirigir al usuario a su dashboard o página principal
       } else {
-        setError(result.message);
+        setError(result.message || 'Credenciales inválidas');
       }
     } catch (error) {
       setError('Error de conexión con el servidor');
