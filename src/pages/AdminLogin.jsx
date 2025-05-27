@@ -42,8 +42,8 @@ const AdminLogin = () => {
         sessionStorage.setItem('currentUser', JSON.stringify(result.user));
         sessionStorage.setItem('isAdmin', result.isAdmin);
         
-        alert('Inicio de sesión exitoso');
-        // Aquí podrías redirigir al usuario a su dashboard o página principal
+        // Redirigir al dashboard de administrador
+        navigate('/admin/dashboard');
       } else {
         setError(result.message || 'Credenciales inválidas');
       }
