@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { fetchWithAuth, logout } from '../services/authService';
 import '../styles/AdminDashboard.css';
 import localidades from '../data/localidades.json';
+const API_URL = 'https://backenddsi.onrender.com';
 
 const AdminDashboard = () => {
   const [students, setStudents] = useState([]);
@@ -24,6 +25,7 @@ const AdminDashboard = () => {
   const [formLoading, setFormLoading] = useState(false);
   const navigate = useNavigate();
 
+
   // Filtrar localidades basado en la búsqueda
   const filteredLocalidades = localidades.localidades.filter(loc =>
     loc.toLowerCase().includes(searchLocalidad.toLowerCase())
@@ -42,7 +44,7 @@ const AdminDashboard = () => {
   const fetchStudents = async () => {
     setLoading(true);
     try {
-      const response = await fetchWithAuth('http://localhost:3000/users');
+      const response = await fetchWithAuth(`${API_URL}/users`);
       
       if (!response.ok) {
         throw new Error('Error al obtener la lista de estudiantes');
@@ -65,7 +67,7 @@ const AdminDashboard = () => {
     }
     
     try {
-      const response = await fetchWithAuth(`http://localhost:3000/users/${id}`, {
+      const response = await fetchWithAuth(`${API_URL}/users/${id}`, {
         method: 'DELETE'
       });
       
@@ -138,7 +140,7 @@ const AdminDashboard = () => {
       console.log('Enviando datos:', studentData);
       
       // Enviar datos al servidor
-      const response = await fetchWithAuth('http://localhost:3000/admin/users/add', {
+      const response = await fetchWithAuth(`${API_URL}/admin/users/add`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

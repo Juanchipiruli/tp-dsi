@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:3000';
+const API_URL = 'https://backenddsi.onrender.com';
 
 // Función para iniciar sesión como alumno
 export const loginUser = async (legajo, password) => {
