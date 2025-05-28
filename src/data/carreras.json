@@ -1,0 +1,24 @@
+{
+    "carreras": [
+        {
+            "nombre": "Ingeniería de Sistemas",
+            "duracion": 5
+        },
+        {
+            "nombre": "Ingeniería Electrónica",
+            "duracion": 5
+        },
+        {
+            "nombre": "Ingeniería Electromecánica",
+            "duracion": 5
+        },
+        {
+            "nombre": "Ingeniería Química",
+            "duracion": 5
+        },
+        {
+            "nombre": "Ingeniería Industrial",
+            "duracion": 5
+        }
+    ]
+}

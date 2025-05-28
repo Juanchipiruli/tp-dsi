@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { fetchWithAuth, logout } from '../services/authService';
 import '../styles/AdminDashboard.css';
 import localidades from '../data/localidades.json';
+import CareerSelect from '../components/CareerSelect';
 const API_URL = 'https://backenddsi.onrender.com';
 
 const AdminDashboard = () => {
@@ -14,7 +15,8 @@ const AdminDashboard = () => {
   const [showAddForm, setShowAddForm] = useState(false);
   const [formData, setFormData] = useState({
     legajo: '',
-    nombre: '',
+    nombre_pila: '',
+    apellido: '',
     dni: '',
     carrera: '',
     localidad: '',
@@ -129,7 +131,8 @@ const AdminDashboard = () => {
       // Crear objeto con los datos del estudiante en el formato esperado por la API
       const studentData = {
         legajo: formData.legajo,
-        nombre: formData.nombre,
+        nombre_pila: formData.nombre_pila,
+        apellido: formData.apellido,
         dni: formData.dni,
         carrera: formData.carrera,
         localidad: formData.localidad,
@@ -163,7 +166,8 @@ const AdminDashboard = () => {
       // Limpiar el formulario y cerrarlo
       setFormData({
         legajo: '',
-        nombre: '',
+        nombre_pila: '',
+        apellido: '',
         dni: '',
         carrera: '',
         localidad: '',
@@ -237,6 +241,7 @@ const AdminDashboard = () => {
                     <tr>
                       <th>Legajo</th>
                       <th>Nombre</th>
+                      <th>Apellido</th>
                       <th>DNI</th>
                       <th>Carrera</th>
                       <th>Localidad</th>
@@ -248,7 +253,8 @@ const AdminDashboard = () => {
                       students.map(student => (
                         <tr key={student.id}>
                           <td>{student.legajo}</td>
-                          <td>{student.nombre}</td>
+                          <td>{student.nombre_pila || (student.nombre ? student.nombre.split(' ')[0] : '')}</td>
+                          <td>{student.apellido || (student.nombre ? student.nombre.split(' ').slice(1).join(' ') : '')}</td>
                           <td>{student.dni}</td>
                           <td>{student.carrera}</td>
                           <td>{student.localidad}</td>
@@ -316,12 +322,24 @@ const AdminDashboard = () => {
                 />
               </div>
               <div className="form-group">
-                <label htmlFor="nombre">Nombre Completo:</label>
+                <label htmlFor="nombre_pila">Nombre:</label>
                 <input
                   type="text"
-                  id="nombre"
-                  name="nombre"
-                  value={formData.nombre}
+                  id="nombre_pila"
+                  name="nombre_pila"
+                  value={formData.nombre_pila}
+                  onChange={handleFormChange}
+                  required
+                  disabled={formLoading}
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="apellido">Apellido:</label>
+                <input
+                  type="text"
+                  id="apellido"
+                  name="apellido"
+                  value={formData.apellido}
                   onChange={handleFormChange}
                   required
                   disabled={formLoading}
@@ -340,15 +358,9 @@ const AdminDashboard = () => {
                 />
               </div>
               <div className="form-group">
-                <label htmlFor="carrera">Carrera:</label>
-                <input
-                  type="text"
-                  id="carrera"
-                  name="carrera"
+                <CareerSelect 
                   value={formData.carrera}
-                  onChange={handleFormChange}
-                  required
-                  disabled={formLoading}
+                  onChange={(value) => setFormData({...formData, carrera: value})}
                 />
               </div>
               <div className="form-group">
