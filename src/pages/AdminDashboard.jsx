@@ -63,13 +63,13 @@ const AdminDashboard = () => {
   };
 
   // Función para eliminar un estudiante
-  const deleteStudent = async (id) => {
+  const deleteStudent = async (legajo) => {
     if (!confirm('¿Está seguro que desea eliminar este estudiante?')) {
       return;
     }
     
     try {
-      const response = await fetchWithAuth(`${API_URL}/users/${id}`, {
+      const response = await fetchWithAuth(`${API_URL}/admin/users/delete/${legajo}`, {
         method: 'DELETE'
       });
       
@@ -78,7 +78,7 @@ const AdminDashboard = () => {
       }
       
       // Actualizar la lista de estudiantes
-      setStudents(students.filter(student => student.id !== id));
+      setStudents(students.filter(student => student.legajo !== legajo));
       alert('Estudiante eliminado correctamente');
     } catch (error) {
       console.error('Error:', error);
@@ -267,7 +267,7 @@ const AdminDashboard = () => {
                             </button>
                             <button 
                               className="delete-button"
-                              onClick={() => deleteStudent(student.id)}
+                              onClick={() => deleteStudent(student.legajo)}
                             >
                               Eliminar
                             </button>
