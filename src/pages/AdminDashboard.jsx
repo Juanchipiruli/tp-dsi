@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { fetchWithAuth, logout } from '../services/authService';
+import { fetchWithAuth, logout, getAuthToken } from '../services/authService';
 import '../styles/AdminDashboard.css';
 import localidades from '../data/localidades.json';
 import CareerSelect from '../components/CareerSelect';
-const API_URL = 'https://backenddsi.onrender.com';
+const API_URL = 'http://localhost:3000';
 
 const AdminDashboard = () => {
   const [students, setStudents] = useState([]);
@@ -15,9 +15,9 @@ const AdminDashboard = () => {
   const [showAddForm, setShowAddForm] = useState(false);
   const [formData, setFormData] = useState({
     legajo: '',
-    nombre_pila: '',
+    nombre: '',
     apellido: '',
-    dni: '',
+    email: '',
     carrera: '',
     localidad: '',
     password: ''
@@ -46,7 +46,9 @@ const AdminDashboard = () => {
   const fetchStudents = async () => {
     setLoading(true);
     try {
-      const response = await fetchWithAuth(`${API_URL}/users`);
+      const response = await fetchWithAuth(`${API_URL}/api/users`, {
+        
+      });
       
       if (!response.ok) {
         throw new Error('Error al obtener la lista de estudiantes');
@@ -63,14 +65,14 @@ const AdminDashboard = () => {
   };
 
   // Función para eliminar un estudiante
-  const deleteStudent = async (legajo) => {
+  const deleteStudent = async (student) => {
     if (!confirm('¿Está seguro que desea eliminar este estudiante?')) {
       return;
     }
     
     try {
-      const response = await fetchWithAuth(`${API_URL}/admin/users/delete/${legajo}`, {
-        method: 'DELETE'
+      const response = await fetchWithAuth(`${API_URL}/api/users/${student.id}`, {
+        method: 'DELETE',
       });
       
       if (!response.ok) {
@@ -78,7 +80,7 @@ const AdminDashboard = () => {
       }
       
       // Actualizar la lista de estudiantes
-      setStudents(students.filter(student => student.legajo !== legajo));
+        setStudents(students.filter(student => student.id !== student.id));
       alert('Estudiante eliminado correctamente');
     } catch (error) {
       console.error('Error:', error);
@@ -131,19 +133,18 @@ const AdminDashboard = () => {
       // Crear objeto con los datos del estudiante en el formato esperado por la API
       const studentData = {
         legajo: formData.legajo,
-        nombre_pila: formData.nombre_pila,
+        nombre: formData.nombre,
         apellido: formData.apellido,
-        dni: formData.dni,
+        email: formData.email,
         carrera: formData.carrera,
         localidad: formData.localidad,
         password: formData.password,
-        role: 'student' // Asegurarse de que se asigne el rol correcto
       };
       
       console.log('Enviando datos:', studentData);
       
       // Enviar datos al servidor
-      const response = await fetchWithAuth(`${API_URL}/admin/users/add`, {
+      const response = await fetchWithAuth(`${API_URL}/api/users`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -166,9 +167,8 @@ const AdminDashboard = () => {
       // Limpiar el formulario y cerrarlo
       setFormData({
         legajo: '',
-        nombre_pila: '',
+        nombre: '',
         apellido: '',
-        dni: '',
         carrera: '',
         localidad: '',
         password: ''
@@ -242,10 +242,8 @@ const AdminDashboard = () => {
                       <th>Legajo</th>
                       <th>Nombre</th>
                       <th>Apellido</th>
-                      <th>DNI</th>
                       <th>Carrera</th>
                       <th>Localidad</th>
-                      <th>Acciones</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -253,9 +251,8 @@ const AdminDashboard = () => {
                       students.map(student => (
                         <tr key={student.id}>
                           <td>{student.legajo}</td>
-                          <td>{student.nombre_pila || (student.nombre ? student.nombre.split(' ')[0] : '')}</td>
-                          <td>{student.apellido || (student.nombre ? student.nombre.split(' ').slice(1).join(' ') : '')}</td>
-                          <td>{student.dni}</td>
+                          <td>{student.nombre}</td>
+                          <td>{student.apellido}</td>
                           <td>{student.carrera}</td>
                           <td>{student.localidad}</td>
                           <td className="action-buttons">
@@ -267,7 +264,7 @@ const AdminDashboard = () => {
                             </button>
                             <button 
                               className="delete-button"
-                              onClick={() => deleteStudent(student.legajo)}
+                              onClick={() => deleteStudent(student)}
                             >
                               Eliminar
                             </button>
@@ -322,12 +319,12 @@ const AdminDashboard = () => {
                 />
               </div>
               <div className="form-group">
-                <label htmlFor="nombre_pila">Nombre:</label>
+                <label htmlFor="nombre">Nombre:</label>
                 <input
                   type="text"
-                  id="nombre_pila"
-                  name="nombre_pila"
-                  value={formData.nombre_pila}
+                  id="nombre"
+                  name="nombre"
+                  value={formData.nombre}
                   onChange={handleFormChange}
                   required
                   disabled={formLoading}
@@ -346,12 +343,12 @@ const AdminDashboard = () => {
                 />
               </div>
               <div className="form-group">
-                <label htmlFor="dni">DNI:</label>
+                <label htmlFor="email">Email:</label>
                 <input
-                  type="text"
-                  id="dni"
-                  name="dni"
-                  value={formData.dni}
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={formData.email}
                   onChange={handleFormChange}
                   required
                   disabled={formLoading}

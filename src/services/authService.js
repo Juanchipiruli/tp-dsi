@@ -1,4 +1,4 @@
-const API_URL = 'https://backenddsi.onrender.com';
+const API_URL = 'http://localhost:3000';
 
 // Función para iniciar sesión como alumno
 export const loginUser = async (legajo, password) => {
@@ -6,7 +6,7 @@ export const loginUser = async (legajo, password) => {
     console.log('Intentando login con:', { legajo });
     
     // Usar el endpoint específico de login con método POST
-    const response = await fetch(`${API_URL}/login`, {
+    const response = await fetch(`${API_URL}/api/users/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -67,45 +67,41 @@ export const loginUser = async (legajo, password) => {
 // Función para iniciar sesión como administrador
 export const loginAdmin = async (username, password) => {
   try {
-    // Usar el endpoint específico de login para administradores con método POST
-    const response = await fetch(`${API_URL}/admin/login`, {
+    const response = await fetch(`${API_URL}/api/users/login-admin`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ username, password }),
     });
-    
-    // Verificar si la respuesta es exitosa
+
     if (!response.ok) {
       const errorData = await response.json();
       throw new Error(errorData.error || 'Error al conectar con el servidor');
     }
-    
-    // Procesar la respuesta
+
     const data = await response.json();
-    
-    if (data.success) {
-      // Guardar el token en localStorage para usarlo en futuras peticiones
+
+    if (data.token && data.user) {
       localStorage.setItem('authToken', data.token);
-      
-      return { 
-        success: true, 
-        user: data.usuario, 
-        isAdmin: data.isAdmin,
+
+      return {
+        success: true,
+        user: data.user,
+        isAdmin: data.user.isAdmin,
         token: data.token
       };
     } else {
-      return { 
-        success: false, 
-        message: data.error || 'Credenciales inválidas' 
+      return {
+        success: false,
+        message: data.error || 'Credenciales inválidas'
       };
     }
   } catch (error) {
     console.error('Error en el login de administrador:', error);
-    return { 
-      success: false, 
-      message: error.message || 'Error de conexión con el servidor' 
+    return {
+      success: false,
+      message: error.message || 'Error de conexión con el servidor'
     };
   }
 };
