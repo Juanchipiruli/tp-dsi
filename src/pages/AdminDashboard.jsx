@@ -4,6 +4,8 @@ import { fetchWithAuth, logout, getAuthToken } from '../services/authService';
 import '../styles/AdminDashboard.css';
 import localidades from '../data/localidades.json';
 import CareerSelect from '../components/CareerSelect';
+import LocationSelect from '../components/LocationSelect';
+import { capitalize } from 'lodash';
 const API_URL = 'http://localhost:3000';
 
 const AdminDashboard = () => {
@@ -25,6 +27,19 @@ const AdminDashboard = () => {
   const [searchLocalidad, setSearchLocalidad] = useState('');
   const [formError, setFormError] = useState('');
   const [formLoading, setFormLoading] = useState(false);
+  const [showEditForm, setShowEditForm] = useState(false);
+  const [editFormData, setEditFormData] = useState({
+    id: '',
+    legajo: '',
+    nombre: '',
+    apellido: '',
+    email: '',
+    carrera: '',
+    localidad: '',
+    password: ''
+  });
+  const [editFormError, setEditFormError] = useState('');
+  const [editFormLoading, setEditFormLoading] = useState(false);
   const navigate = useNavigate();
 
 
@@ -64,30 +79,6 @@ const AdminDashboard = () => {
     }
   };
 
-  // Función para eliminar un estudiante
-  const deleteStudent = async (student) => {
-    if (!confirm('¿Está seguro que desea eliminar este estudiante?')) {
-      return;
-    }
-    
-    try {
-      const response = await fetchWithAuth(`${API_URL}/api/users/${student.id}`, {
-        method: 'DELETE',
-      });
-      
-      if (!response.ok) {
-        throw new Error('Error al eliminar el estudiante');
-      }
-      
-      // Actualizar la lista de estudiantes
-        setStudents(students.filter(student => student.id !== student.id));
-      alert('Estudiante eliminado correctamente');
-    } catch (error) {
-      console.error('Error:', error);
-      alert('Error al eliminar el estudiante');
-    }
-  };
-
   // Función para manejar cambios en el formulario
   const handleFormChange = (e) => {
     setFormData({
@@ -96,6 +87,29 @@ const AdminDashboard = () => {
     });
   };
 
+  // Función para eliminar un estudiante
+  const deleteStudent = async (studentToDelete) => {
+    if (!confirm('¿Está seguro que desea eliminar este estudiante?')) {
+      return;
+    }
+    
+    try {
+      const response = await fetchWithAuth(`${API_URL}/api/users/${studentToDelete.id}`, {
+        method: 'DELETE',
+      });
+      
+      if (!response.ok) {
+        throw new Error('Error al eliminar el estudiante');
+      }
+      
+      // Actualizar la lista de estudiantes
+      setStudents(students.filter(s => s.id !== studentToDelete.id));
+      alert('Estudiante eliminado correctamente');
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Error al eliminar el estudiante');
+    }
+  };
   // Función para agregar un nuevo estudiante
   const addStudent = async (e) => {
     e.preventDefault();
@@ -159,7 +173,8 @@ const AdminDashboard = () => {
       }
       
       // Obtener el nuevo estudiante creado
-      const newStudent = await response.json();
+      const responseData = await response.json();
+      const newStudent = responseData.user;
       
       // Actualizar la lista de estudiantes
       setStudents([...students, newStudent]);
@@ -181,6 +196,44 @@ const AdminDashboard = () => {
       setFormError('Error al registrar el estudiante. Por favor, intente nuevamente.');
     } finally {
       setFormLoading(false);
+    }
+  };  
+
+  const openEditForm = (student) => {
+    setEditFormData({ ...student, password: '' }); // No muestres la contraseña
+    setEditFormError('');
+    setShowEditForm(true);
+  };
+
+  const handleEditFormChange = (e) => {
+    setEditFormData({
+      ...editFormData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const saveEditedStudent = async (e) => {
+    e.preventDefault();
+    setEditFormLoading(true);
+    setEditFormError('');
+    try {
+      // Validaciones aquí si quieres
+      const response = await fetchWithAuth(`${API_URL}/api/users/${editFormData.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(editFormData),
+      });
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Error al editar el estudiante');
+      }
+      // Actualiza la lista localmente o recarga desde el backend
+      await fetchStudents();
+      setShowEditForm(false);
+    } catch (error) {
+      setEditFormError(error.message || 'Error al editar el estudiante');
+    } finally {
+      setEditFormLoading(false);
     }
   };
 
@@ -237,28 +290,29 @@ const AdminDashboard = () => {
             ) : (
               <div className="students-table-container">
                 <table className="students-table">
-                  <thead>
+                  <thead className="students-table-header">
                     <tr>
                       <th>Legajo</th>
                       <th>Nombre</th>
                       <th>Apellido</th>
                       <th>Carrera</th>
                       <th>Localidad</th>
+                      <th></th>
                     </tr>
                   </thead>
                   <tbody>
                     {students.length > 0 ? (
                       students.map(student => (
-                        <tr key={student.id}>
+                        <tr key={student.legajo}>
                           <td>{student.legajo}</td>
-                          <td>{student.nombre}</td>
-                          <td>{student.apellido}</td>
+                          <td>{capitalize(student.nombre)}</td>
+                          <td>{capitalize(student.apellido)}</td>
                           <td>{student.carrera}</td>
                           <td>{student.localidad}</td>
                           <td className="action-buttons">
                             <button 
                               className="edit-button"
-                              onClick={() => alert(`Editar estudiante ${student.id} (Funcionalidad en desarrollo)`)}
+                              onClick={() => openEditForm(student)}
                             >
                               Editar
                             </button>
@@ -307,7 +361,7 @@ const AdminDashboard = () => {
               <div className="form-group">
                 <label htmlFor="legajo">Legajo:</label>
                 <input
-                  type="text"
+                  type="number"
                   id="legajo"
                   name="legajo"
                   value={formData.legajo}
@@ -412,6 +466,110 @@ const AdminDashboard = () => {
                   disabled={formLoading}
                 >
                   {formLoading ? 'Procesando...' : 'Guardar'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {showEditForm && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <button 
+              className="close-modal-button"
+              onClick={() => setShowEditForm(false)}
+            >
+              ×
+            </button>
+            <h2>Editar Alumno</h2>
+            <form onSubmit={saveEditedStudent} className="edit-student-form">
+              <div className="form-group">
+                <label htmlFor="edit-legajo">Legajo:</label>
+                <input
+                  type="number"
+                  id="edit-legajo"
+                  name="legajo"
+                  value={editFormData.legajo}
+                  onChange={handleEditFormChange}
+                  required
+                  disabled={editFormLoading}
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="edit-nombre">Nombre:</label>
+                <input
+                  type="text"
+                  id="edit-nombre"
+                  name="nombre"
+                  value={editFormData.nombre}
+                  onChange={handleEditFormChange}
+                  required
+                  disabled={editFormLoading}
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="edit-apellido">Apellido:</label>
+                <input
+                  type="text"
+                  id="edit-apellido"
+                  name="apellido"
+                  value={editFormData.apellido}
+                  onChange={handleEditFormChange}
+                  required
+                  disabled={editFormLoading}
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="edit-email">Email:</label>
+                <input
+                  type="email"
+                  id="edit-email"
+                  name="email"
+                  value={editFormData.email}
+                  onChange={handleEditFormChange}
+                  required
+                  disabled={editFormLoading}
+                />
+              </div>
+              <div className="form-group">
+                <CareerSelect 
+                  value={editFormData.carrera}
+                  onChange={(value) => setEditFormData({...editFormData, carrera: value})}
+                />
+              </div>
+              <div className="form-group">
+                <LocationSelect
+                  value={editFormData.localidad}
+                  onChange={value => setEditFormData({ ...editFormData, localidad: value })}
+                  disabled={editFormLoading}
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="edit-password">Contraseña:</label>
+                <input
+                  type="password"
+                  id="edit-password"
+                  name="password"
+                  value={editFormData.password}
+                />
+              </div>
+              {editFormError && <div className="error-message">{editFormError}</div>}
+              <div className="form-buttons">
+                <button 
+                  type="button" 
+                  className="cancel-button"
+                  onClick={() => setShowEditForm(false)}
+                  disabled={editFormLoading}
+                >
+                  Cancelar
+                </button>
+                <button 
+                  type="submit" 
+                  className="submit-button"
+                  disabled={editFormLoading}
+                >
+                  {editFormLoading ? 'Guardando...' : 'Guardar Cambios'}
                 </button>
               </div>
             </form>

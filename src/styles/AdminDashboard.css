@@ -1,24 +1,15 @@
-:root {
-  --bg-color: #1a1a1a;
-  --text-color: #ffffff;
-  --primary-color: #3498db;
-  --secondary-color: #2c3e50;
-  --error-color: #e74c3c;
-  --success-color: #2ecc71;
-  --warning-color: #f39c12;
-  --input-bg: #2d2d2d;
-  --input-border: #404040;
-  --hover-color: #2980b9;
-  --form-bg: #232323;
-  --table-header-bg: #2c3e50;
-  --table-row-even: #2d2d2d;
-  --table-row-odd: #333333;
-}
 
 .admin-dashboard {
   min-height: 100vh;
   background-color: var(--bg-color);
   color: var(--text-color);
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow-y: auto;
 }
 
 .dashboard-header {
@@ -119,6 +110,12 @@
   margin-bottom: 1.5rem;
 }
 
+.students-table-header {
+  background-color: var(--primary-color);
+  color: white;
+  font-weight: 500;
+}
+
 .students-table-container {
   overflow-x: auto;
 }
@@ -142,12 +139,8 @@
   font-weight: 500;
 }
 
-.students-table tr:nth-child(even) {
-  background-color: var(--table-row-even);
-}
-
-.students-table tr:nth-child(odd) {
-  background-color: var(--table-row-odd);
+.students-table tr{
+  transition: all 0.7s ease;
 }
 
 .students-table tr:hover {
@@ -212,7 +205,7 @@
 }
 
 .add-button {
-  background-color: var(--success-color);
+  background-color: var(--primary-color);
   color: white;
   border: none;
   padding: 0.5rem 1rem;
@@ -245,7 +238,7 @@
 }
 
 .modal-content {
-  background-color: var(--form-bg);
+  background-color: var(--dark-background-color);
   padding: 2rem;
   border-radius: 8px;
   width: 90%;
@@ -323,7 +316,7 @@
 }
 
 .cancel-button {
-  background-color: var(--input-bg);
+  background-color: var(--light-background-color);
   color: var(--text-color);
   border: 1px solid var(--input-border);
   padding: 0.75rem 1.5rem;
@@ -338,7 +331,7 @@
 }
 
 .submit-button {
-  background-color: var(--success-color);
+  background-color: var(--primary-color);
   color: white;
   border: none;
   padding: 0.75rem 1.5rem;
